@@ -4,11 +4,46 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich import print as rprint
+import yfinance as yf
 
 console = Console()
 
+def get_stock_price_info(ticker):
+    """Mengambil harga saham terbaru dan perubahan harganya."""
+    try:
+        stock = yf.Ticker(ticker)
+        # Ambil data 2 hari terakhir untuk hitung perubahan
+        hist = stock.history(period="2d")
+        if len(hist) < 2:
+            return None
+        
+        current_price = hist['Close'].iloc[-1]
+        prev_price = hist['Close'].iloc[-2]
+        change = current_price - prev_price
+        change_pct = (change / prev_price) * 100
+        
+        return {
+            "price": current_price,
+            "change": change,
+            "change_pct": change_pct,
+            "currency": stock.info.get('currency', 'USD')
+        }
+    except:
+        return None
+
 def run_sentiment_analysis(ticker):
     console.rule(f"[bold blue]📊 Financial Sentiment Dashboard: {ticker}[/bold blue]")
+    
+    # 0. Ambil Info Harga (Market Context)
+    price_info = get_stock_price_info(ticker)
+    if price_info:
+        color = "green" if price_info['change'] >= 0 else "red"
+        sign = "+" if price_info['change'] >= 0 else ""
+        price_text = (
+            f"Current Price: [bold]{price_info['price']:.2f} {price_info['currency']}[/bold] "
+            f"([{color}]{sign}{price_info['change']:.2f} | {sign}{price_info['change_pct']:.2f}%[/{color}])"
+        )
+        console.print(Panel(price_text, title="📈 Market Context", border_style="white"))
     
     # 1. Ambil Berita
     with console.status("[bold green]🕵️♂️ Scrapping news data...") as status:
