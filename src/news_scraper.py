@@ -1,7 +1,9 @@
 import yfinance as yf
+import requests
+from bs4 import BeautifulSoup
 
 def fetch_stock_news(ticker_symbol):
-    print(f"🕵️‍♂️ Sedang mencari berita terbaru untuk: {ticker_symbol}...")
+    print(f"🕵️♂️ Sedang mencari berita terbaru untuk: {ticker_symbol}...")
     stock = yf.Ticker(ticker_symbol)
     
     try:
@@ -10,9 +12,10 @@ def fetch_stock_news(ticker_symbol):
         print(f"❌ Error saat mengambil data: {e}")
         return []
     
+    # Jika Yahoo kosong, kita beralih ke Google News RSS (Fallback)
     if not news_list:
-        print("⚠️ Tidak ada berita ditemukan.")
-        return []
+        print(f"⚠️ Yahoo News kosong untuk {ticker_symbol}. Mencoba Google News...")
+        return fetch_google_news(ticker_symbol)
 
     processed_news = []
     for item in news_list:
@@ -30,11 +33,42 @@ def fetch_stock_news(ticker_symbol):
         if title:
             processed_news.append({
                 "title": title,
-                "publisher": publisher,
+                "publisher": publisher or "Yahoo Finance",
                 "link": link
             })
     
     return processed_news
+
+def fetch_google_news(ticker_symbol):
+    """Fallback scraper menggunakan Google News RSS."""
+    # Bersihkan simbol .JK untuk pencarian yang lebih baik
+    query = ticker_symbol.replace(".JK", "")
+    url = f"https://news.google.com/rss/search?q={query}+stock&hl=id&gl=ID&ceid=ID:id"
+    
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.content, 'xml')  # Pakai parser XML
+        items = soup.find_all('item')
+        
+        google_news = []
+        for item in items[:10]:  # Ambil 10 berita teratas
+            title = item.title.text if item.title else None
+            source = item.source.text if item.source else "Google News"
+            link = item.link.text if item.link else None
+            
+            if title:
+                google_news.append({
+                    "title": title,
+                    "publisher": source,
+                    "link": link
+                })
+        
+        if google_news:
+            print(f"✅ Berhasil mengambil {len(google_news)} berita dari Google News.")
+        return google_news
+    except Exception as e:
+        print(f"❌ Gagal mengambil berita dari Google: {e}")
+        return []
 
 if __name__ == "__main__":
     symbol = "TSLA" 
