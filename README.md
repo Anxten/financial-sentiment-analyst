@@ -1,19 +1,107 @@
-# The Intelligent Financial Sentiment Analyst 🤖📈
+# 🤖 The Intelligent Financial Sentiment Analyst
 
-An advanced AI-driven system designed to quantify market psychology using Transformer architectures.
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![AI](https://img.shields.io/badge/AI-Transformers-orange.svg)
+![Status](https://img.shields.io/badge/Status-Live_Dashboard-green.svg)
 
-## 🚀 Vision
-To bridge the gap between raw financial news and technical market data, enabling data-driven decisions that pave the way toward elite engineering excellence.
+A robust, end-to-end financial sentiment analysis system that bridges the gap between raw financial news and investment intelligence. Developed with a focus on robustness and real-time data accuracy.
+
+## 🚀 Key Features
+* **Hybrid News Scraper:** Dual-layer scraping using Yahoo Finance API with an automatic failover to Google News RSS for regional tickers (e.g., IDX).
+* **FinBERT Intelligence:** Utilizes the `ProsusAI/finbert` transformer model, specialized for financial context.
+* **Market Context Integration:** Real-time price tracking and daily price change percentage.
+* **Professional Dashboard:** Built with Streamlit for a clean, interactive user experience.
+* **Historical Logging:** Automated data persistence in CSV format for trend analysis.
+
+## 🧠 The Math Behind the Sentiment
+The overall sentiment score is calculated using the following logic:
+
+$$\text{Sentiment Score} = \frac{\text{Positive} - \text{Negative}}{\text{Total}}$$
+
+* **Score > 0.2**: Bullish (Optimistic)
+* **Score < -0.2**: Bearish (Pessimistic)
+* **Otherwise**: Neutral (Wait and See)
 
 ## 🛠️ Tech Stack
-- **Model:** FinBERT (Hugging Face)
+- **Model:** FinBERT (ProsusAI/finbert)
 - **Architecture:** Transformer (Encoder-only)
-- **Frameworks:** PyTorch, Transformers
-- **Data:** Scraped from Yahoo Finance/CNBC
+- **Frameworks:** PyTorch, Transformers, Streamlit
+- **Data Sources:** Yahoo Finance API, Google News RSS
 - **Environment:** Fedora Linux | VS Code
 
-## 🗺️ Roadmap
-- [ ] Phase 1: Environment Setup & FinBERT Integration
-- [ ] Phase 2: Automated News Scraper Development
-- [ ] Phase 3: Sentiment Correlation with Price Action
-- [ ] Phase 4: Web Deployment (Streamlit)
+## 📦 Installation & Setup
+
+Follow these steps to get the analyst running on your local machine:
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Anxten/financial-sentiment-analyst.git
+cd financial-sentiment-analyst
+```
+
+### 2. Set Up Virtual Environment
+
+It's highly recommended to use a virtual environment to keep dependencies isolated.
+
+**For Linux (Fedora/Ubuntu) & MacOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**For Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Run the Application
+
+**CLI Version (Terminal):**
+```bash
+python src/main.py
+```
+
+**Web Dashboard (Browser):**
+```bash
+streamlit run src/app.py
+```
+
+## 📊 Project Structure
+```
+financial-sentiment-analyst/
+├── src/
+│   ├── main.py           # CLI version with Rich terminal UI
+│   ├── app.py            # Streamlit web dashboard
+│   └── news_scraper.py   # Hybrid news scraping module
+├── data/
+│   └── sentiment_history.csv  # Historical analysis logs
+├── requirements.txt
+└── README.md
+```
+
+## 🎯 Use Cases
+- **Retail Investors:** Quick sentiment check before making trading decisions
+- **Financial Analysts:** Automated news monitoring for multiple tickers
+- **Research:** Historical sentiment data collection for backtesting strategies
+
+## 🔮 Future Enhancements
+- [ ] Multi-language sentiment support (Bahasa Indonesia)
+- [ ] Integration with technical indicators (RSI, MACD)
+- [ ] Real-time alert system via Telegram/Discord
+- [ ] Sentiment-price correlation visualization
+
+## 📝 License
+This project is open-source and available under the MIT License.
+
+---
+
+**Developed by Allan Bendatu**  
+*Informatics Student & Calculus Teaching Assistant*  
+*Bridging Mathematics, AI, and Financial Markets*
