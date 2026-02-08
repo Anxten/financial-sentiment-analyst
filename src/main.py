@@ -5,8 +5,31 @@ from rich.table import Table
 from rich.panel import Panel
 from rich import print as rprint
 import yfinance as yf
+import os
+from datetime import datetime
+import pandas as pd
 
 console = Console()
+
+def save_to_history(ticker, score, verdict):
+    """Menyimpan hasil analisis ke CSV untuk tracking historis."""
+    os.makedirs("data", exist_ok=True)
+    file_path = "data/sentiment_history.csv"
+    new_data = {
+        "timestamp": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+        "ticker": [ticker],
+        "score": [score],
+        "verdict": [verdict]
+    }
+    df_new = pd.DataFrame(new_data)
+    
+    # Simpan ke CSV (Append jika file sudah ada)
+    if not os.path.isfile(file_path):
+        df_new.to_csv(file_path, index=False)
+    else:
+        df_new.to_csv(file_path, mode='a', header=False, index=False)
+    
+    rprint(f"[dim]📁 Analysis saved to {file_path}[/dim]")
 
 def get_stock_price_info(ticker):
     """Mengambil harga saham terbaru dan perubahan harganya."""
@@ -108,6 +131,10 @@ def run_sentiment_analysis(ticker):
         border_style="bright_blue"
     )
     console.print(summary_panel)
+    
+    # 5. Simpan ke History
+    verdict_clean = verdict.replace("[bold green]", "").replace("[/bold green]", "").replace("[bold red]", "").replace("[/bold red]", "").replace("[bold yellow]", "").replace("[/bold yellow]", "")
+    save_to_history(ticker, score, verdict_clean)
 
 if __name__ == "__main__":
     saham = console.input("[bold yellow]Masukkan kode saham (e.g. TSLA, BBCA.JK): [/bold yellow]").strip().upper()
