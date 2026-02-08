@@ -9,3 +9,6 @@ venv/
 .DS_Store
 .directory
 .vscode/
+
+# Data files
+data/*.csv
