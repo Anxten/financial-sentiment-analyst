@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from transformers import pipeline
 from news_scraper import fetch_stock_news
 import yfinance as yf
 
@@ -10,6 +9,8 @@ st.set_page_config(page_title="AI Financial Analyst", page_icon="📈", layout="
 # 2. Cache Model (Agar tidak download/load ulang setiap klik)
 @st.cache_resource
 def load_model():
+    # Model baru di-load saat dibutuhkan saja (Lazy Loading)
+    from transformers import pipeline
     return pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
 # 3. Fungsi Helper Harga
