@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from news_scraper import fetch_stock_news
 import yfinance as yf
+import os
+from datetime import datetime
 
 # 1. Konfigurasi Halaman
 st.set_page_config(page_title="AI Financial Analyst", page_icon="📈", layout="wide")
@@ -24,6 +26,26 @@ def get_price_data(ticker):
         return curr, curr - prev, (curr - prev) / prev * 100
     except:
         return None
+
+# 4. Fungsi Save Log
+def save_log(ticker, score, total_news):
+    """Menyimpan hasil analisis ke CSV untuk tracking historis."""
+    log_path = "data/sentiment_history.csv"
+    os.makedirs("data", exist_ok=True)
+    
+    new_data = pd.DataFrame([{
+        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Ticker": ticker,
+        "Score": round(score, 2),
+        "Total_News": total_news
+    }])
+    
+    if os.path.exists(log_path):
+        new_data.to_csv(log_path, mode='a', header=False, index=False)
+    else:
+        new_data.to_csv(log_path, index=False)
+    
+    return log_path
 
 # --- UI SIDEBAR ---
 st.sidebar.title("🚀 AI Analyst Settings")
@@ -83,6 +105,21 @@ if analyze_btn:
 
                 # Show Table
                 st.dataframe(df, use_container_width=True)
+                
+                # Save to history
+                log_path = save_log(ticker, score, len(df))
+                st.success(f"✅ Analysis saved to {log_path}")
+                
+                # Download button
+                if os.path.exists(log_path):
+                    with open(log_path, "rb") as file:
+                        st.download_button(
+                            label="📥 Download Sentiment History",
+                            data=file,
+                            file_name="sentiment_history.csv",
+                            mime="text/csv",
+                            use_container_width=True
+                        )
             else:
                 st.error("Failed to analyze news headlines.")
         else:
