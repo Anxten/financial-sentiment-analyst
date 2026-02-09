@@ -8,3 +8,4 @@ yfinance
 rich
 lxml
 streamlit
+deep-translator
