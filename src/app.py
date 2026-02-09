@@ -40,11 +40,8 @@ def save_log(ticker, score, total_news):
         "Total_News": total_news
     }])
     
-    if os.path.exists(log_path):
-        new_data.to_csv(log_path, mode='a', header=False, index=False)
-    else:
-        new_data.to_csv(log_path, index=False)
-    
+    # Gunakan mode 'a' (append) dengan header conditional
+    new_data.to_csv(log_path, mode='a', header=not os.path.exists(log_path), index=False)
     return log_path
 
 # --- UI SIDEBAR ---
@@ -95,32 +92,47 @@ if analyze_btn:
                 neg = len(df[df['Sentiment'] == 'NEGATIVE'])
                 score = (pos - neg) / len(df) if len(df) > 0 else 0
 
-                # Display Verdict
-                if score > 0.1: 
-                    st.success(f"Market Verdict: **BULLISH** (Score: {score:.2f})")
-                elif score < -0.1: 
-                    st.error(f"Market Verdict: **BEARISH** (Score: {score:.2f})")
-                else: 
-                    st.warning(f"Market Verdict: **NEUTRAL** (Score: {score:.2f})")
-
-                # Show Table
-                st.dataframe(df, use_container_width=True)
+                # SIMPAN KE SESSION STATE (Agar tidak hilang saat rerun)
+                st.session_state['last_analysis'] = {
+                    "ticker": ticker,
+                    "score": score,
+                    "df": df,
+                    "pos": pos,
+                    "neg": neg
+                }
                 
-                # Save to history
-                log_path = save_log(ticker, score, len(df))
-                st.success(f"✅ Analysis saved to {log_path}")
-                
-                # Download button
-                if os.path.exists(log_path):
-                    with open(log_path, "rb") as file:
-                        st.download_button(
-                            label="📥 Download Sentiment History",
-                            data=file,
-                            file_name="sentiment_history.csv",
-                            mime="text/csv",
-                            use_container_width=True
-                        )
+                # Simpan ke CSV HANYA SEKALI saat tombol diklik
+                save_log(ticker, score, len(df))
+                st.success("✅ Analysis saved to history!")
             else:
                 st.error("Failed to analyze news headlines.")
         else:
             st.error("No news found for this ticker.")
+
+# TAMPILKAN HASIL DARI SESSION STATE
+if 'last_analysis' in st.session_state:
+    data = st.session_state['last_analysis']
+    st.write(f"### Results for {data['ticker']}")
+    
+    # Display Verdict
+    if data['score'] > 0.1: 
+        st.success(f"Market Verdict: **BULLISH** (Score: {data['score']:.2f})")
+    elif data['score'] < -0.1: 
+        st.error(f"Market Verdict: **BEARISH** (Score: {data['score']:.2f})")
+    else: 
+        st.warning(f"Market Verdict: **NEUTRAL** (Score: {data['score']:.2f})")
+
+    # Show Table
+    st.dataframe(data['df'], use_container_width=True)
+
+# TOMBOL DOWNLOAD (Selalu ada di sidebar jika data tersedia)
+if os.path.exists("data/sentiment_history.csv"):
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📅 Export Data")
+    with open("data/sentiment_history.csv", "rb") as f:
+        st.sidebar.download_button(
+            label="📥 Download History CSV",
+            data=f,
+            file_name="sentiment_history.csv",
+            mime="text/csv"
+        )
