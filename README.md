@@ -1,3 +1,15 @@
+---
+title: Financial Sentiment Analyst
+emoji: 📈
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.31.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 🤖 The Intelligent Financial Sentiment Analyst
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
