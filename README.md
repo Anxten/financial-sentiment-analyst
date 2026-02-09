@@ -12,11 +12,16 @@ license: mit
 
 # 🤖 The Intelligent Financial Sentiment Analyst
 
+[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow)](https://huggingface.co/spaces/Anxten/financial-sentiment-analyst)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![AI](https://img.shields.io/badge/AI-Transformers-orange.svg)
 ![Status](https://img.shields.io/badge/Status-Live_Dashboard-green.svg)
 
 A robust, end-to-end financial sentiment analysis system that bridges the gap between raw financial news and investment intelligence. Developed with a focus on robustness and real-time data accuracy.
+
+## 🔗 Live Demo
+You can try the live version of this AI Analyst without any installation here:  
+👉 **[Launch App on Hugging Face Spaces](https://huggingface.co/spaces/Anxten/financial-sentiment-analyst)**
 
 ## 🚀 Key Features
 * **Hybrid News Scraper:** Dual-layer scraping using Yahoo Finance API with an automatic failover to Google News RSS for regional tickers (e.g., IDX).
