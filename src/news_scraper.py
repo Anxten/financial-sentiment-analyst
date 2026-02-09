@@ -1,6 +1,7 @@
 import yfinance as yf
 import requests
 from bs4 import BeautifulSoup
+from deep_translator import GoogleTranslator
 
 def fetch_stock_news(ticker_symbol):
     print(f"🕵️♂️ Sedang mencari berita terbaru untuk: {ticker_symbol}...")
@@ -40,7 +41,7 @@ def fetch_stock_news(ticker_symbol):
     return processed_news
 
 def fetch_google_news(ticker_symbol):
-    """Fallback scraper menggunakan Google News RSS."""
+    """Fallback scraper menggunakan Google News RSS dengan auto-translation."""
     # Bersihkan simbol .JK untuk pencarian yang lebih baik
     query = ticker_symbol.replace(".JK", "")
     url = f"https://news.google.com/rss/search?q={query}+stock&hl=id&gl=ID&ceid=ID:id"
@@ -50,18 +51,31 @@ def fetch_google_news(ticker_symbol):
         soup = BeautifulSoup(response.content, 'xml')  # Pakai parser XML
         items = soup.find_all('item')
         
+        translator = GoogleTranslator(source='auto', target='en')
         google_news = []
+        
+        print(f"🌍 Auto-translating {min(len(items), 10)} news for better AI accuracy...")
+        
         for item in items[:10]:  # Ambil 10 berita teratas
-            title = item.title.text if item.title else None
+            original_title = item.title.text if item.title else None
+            if not original_title:
+                continue
+                
+            try:
+                # Terjemahkan judul agar FinBERT memberikan skor yang akurat
+                translated_title = translator.translate(original_title)
+            except:
+                translated_title = original_title
+            
             source = item.source.text if item.source else "Google News"
             link = item.link.text if item.link else None
             
-            if title:
-                google_news.append({
-                    "title": title,
-                    "publisher": source,
-                    "link": link
-                })
+            google_news.append({
+                "title": translated_title,
+                "original_title": original_title,
+                "publisher": source,
+                "link": link
+            })
         
         if google_news:
             print(f"✅ Berhasil mengambil {len(google_news)} berita dari Google News.")
