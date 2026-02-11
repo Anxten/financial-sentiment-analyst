@@ -49,6 +49,10 @@ def save_log(ticker, score, verdict):
     
     return log_path
 
+# --- INITIALIZE SESSION STATE ---
+if 'last_analysis' not in st.session_state:
+    st.session_state['last_analysis'] = None
+
 # --- UI SIDEBAR ---
 st.sidebar.title("🚀 AI Analyst Settings")
 ticker = st.sidebar.text_input("Enter Ticker Symbol", value="TSLA").upper()
@@ -129,9 +133,9 @@ if 'last_analysis' in st.session_state:
     st.write(f"### Results for {data['ticker']}")
     
     # Display Verdict
-    if data['score'] > 0.1: 
+    if data['score'] > 0.2: 
         st.success(f"Market Verdict: **BULLISH** (Score: {data['score']:.2f})")
-    elif data['score'] < -0.1: 
+    elif data['score'] < -0.2: 
         st.error(f"Market Verdict: **BEARISH** (Score: {data['score']:.2f})")
     else: 
         st.warning(f"Market Verdict: **NEUTRAL** (Score: {data['score']:.2f})")
