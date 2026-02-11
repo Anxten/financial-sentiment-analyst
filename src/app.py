@@ -128,7 +128,7 @@ if analyze_btn:
             st.error("No news found for this ticker.")
 
 # TAMPILKAN HASIL DARI SESSION STATE
-if 'last_analysis' in st.session_state:
+if 'last_analysis' in st.session_state and st.session_state['last_analysis'] is not None:
     data = st.session_state['last_analysis']
     st.write(f"### Results for {data['ticker']}")
     
