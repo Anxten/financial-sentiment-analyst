@@ -1,0 +1,7 @@
+[server]
+# Mematikan watcher agar tidak restart saat CSV ditulis
+fileWatcherType = "none"
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
