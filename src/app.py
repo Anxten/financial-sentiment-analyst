@@ -33,15 +33,20 @@ def save_log(ticker, score, verdict):
     log_path = "data/sentiment_history.csv"
     os.makedirs("data", exist_ok=True)
     
-    new_data = pd.DataFrame([{
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "ticker": ticker,
-        "score": round(score, 2),
-        "verdict": verdict
-    }])
+    new_data = {
+        "timestamp": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+        "ticker": [ticker],
+        "score": [round(score, 2)],
+        "verdict": [verdict]
+    }
+    df_new = pd.DataFrame(new_data)
     
-    # Gunakan mode 'a' (append) dengan header conditional
-    new_data.to_csv(log_path, mode='a', header=not os.path.exists(log_path), index=False)
+    # Simpan ke CSV (Append jika file sudah ada)
+    if not os.path.isfile(log_path):
+        df_new.to_csv(log_path, index=False)
+    else:
+        df_new.to_csv(log_path, mode='a', header=False, index=False)
+    
     return log_path
 
 # --- UI SIDEBAR ---
