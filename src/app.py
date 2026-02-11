@@ -28,16 +28,16 @@ def get_price_data(ticker):
         return None
 
 # 4. Fungsi Save Log
-def save_log(ticker, score, total_news):
+def save_log(ticker, score, verdict):
     """Menyimpan hasil analisis ke CSV untuk tracking historis."""
     log_path = "data/sentiment_history.csv"
     os.makedirs("data", exist_ok=True)
     
     new_data = pd.DataFrame([{
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Ticker": ticker,
-        "Score": round(score, 2),
-        "Total_News": total_news
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "ticker": ticker,
+        "score": round(score, 2),
+        "verdict": verdict
     }])
     
     # Gunakan mode 'a' (append) dengan header conditional
@@ -91,6 +91,14 @@ if analyze_btn:
                 pos = len(df[df['Sentiment'] == 'POSITIVE'])
                 neg = len(df[df['Sentiment'] == 'NEGATIVE'])
                 score = (pos - neg) / len(df) if len(df) > 0 else 0
+                
+                # Generate verdict text
+                if score > 0.2:
+                    verdict = "🚀 BULLISH / POSITIVE"
+                elif score < -0.2:
+                    verdict = "📉 BEARISH / NEGATIVE"
+                else:
+                    verdict = "😐 NEUTRAL / SIDEWAYS"
 
                 # SIMPAN KE SESSION STATE (Agar tidak hilang saat rerun)
                 st.session_state['last_analysis'] = {
@@ -98,11 +106,12 @@ if analyze_btn:
                     "score": score,
                     "df": df,
                     "pos": pos,
-                    "neg": neg
+                    "neg": neg,
+                    "verdict": verdict
                 }
                 
                 # Simpan ke CSV HANYA SEKALI saat tombol diklik
-                save_log(ticker, score, len(df))
+                save_log(ticker, score, verdict)
                 st.success("✅ Analysis saved to history!")
             else:
                 st.error("Failed to analyze news headlines.")
