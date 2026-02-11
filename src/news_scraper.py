@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from deep_translator import GoogleTranslator
 
 def fetch_stock_news(ticker_symbol):
+    """Entry point utama untuk scraping berita."""
     print(f"🕵️♂️ Sedang mencari berita terbaru untuk: {ticker_symbol}...")
     stock = yf.Ticker(ticker_symbol)
     
@@ -41,16 +42,34 @@ def fetch_stock_news(ticker_symbol):
     return processed_news
 
 def fetch_google_news(ticker_symbol):
-    """Fallback scraper menggunakan Google News RSS dengan auto-translation."""
-    # Bersihkan simbol .JK untuk pencarian yang lebih baik
-    query = ticker_symbol.replace(".JK", "")
-    url = f"https://news.google.com/rss/search?q={query}+stock&hl=id&gl=ID&ceid=ID:id"
+    """Smarter RSS Scraper for Global (TSLA) and Local (BBCA.JK) stocks."""
+    clean_ticker = ticker_symbol.replace(".JK", "")
     
+    # Penentuan keyword berdasarkan market
+    is_idx = ".JK" in ticker_symbol
+    query = f"{clean_ticker}+saham" if is_idx else f"{clean_ticker}+stock"
+    
+    # Gunakan hl=en untuk saham US agar berita yang didapat lebih relevan
+    hl = "id" if is_idx else "en"
+    gl = "ID" if is_idx else "US"
+    ceid = "ID:id" if is_idx else "US:en"
+    
+    url = f"https://news.google.com/rss/search?q={query}&hl={hl}&gl={gl}&ceid={ceid}"
+    
+    # WAJIB: Identitas agar tidak diblokir Google
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(response.content, 'xml')  # Pakai parser XML
         items = soup.find_all('item')
         
+        if not items:
+            print(f"⚠️ Tidak ada berita ditemukan untuk {ticker_symbol}")
+            return []
+
         translator = GoogleTranslator(source='auto', target='en')
         google_news = []
         
@@ -62,8 +81,8 @@ def fetch_google_news(ticker_symbol):
                 continue
                 
             try:
-                # Terjemahkan judul agar FinBERT memberikan skor yang akurat
-                translated_title = translator.translate(original_title)
+                # TSLA (en) tidak akan diterjemahkan ulang, BBCA (id) akan diterjemahkan
+                translated_title = translator.translate(original_title) if is_idx else original_title
             except:
                 translated_title = original_title
             
